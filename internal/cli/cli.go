@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marco-04/gator-aggregator/internal/config"
 	"github.com/marco-04/gator-aggregator/internal/state"
 )
 
@@ -15,7 +14,6 @@ type cmd struct {
 	callback    func(s *state.State, args []string) error
 }
 
-var cfg config.Config
 var availableCommands map[string]cmd
 
 func validateArgs(args []string, argNum int) error {
@@ -52,8 +50,11 @@ func Dispatch() {
 		os.Exit(1)
 	}
 
-	s := state.State {
-		Config: &cfg,
+	// Initialize application state
+	s, err := state.Init()
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		printHelp(nil, []string{progName})
 	}
 
 	if err := availableCommands[cmdName].callback(&s, subArgs); err != nil {
@@ -74,18 +75,5 @@ func printHelp(s *state.State, args []string) error {
 }
 
 func init() {
-	err := config.InitIfNotExists()
-	if err != nil {
-		fmt.Printf("FATAL: could not write default config file: %v\n", err)
-		os.Exit(1)
-	}
-
-	configFile, err := config.Read()
-	if err != nil {
-		fmt.Printf("FATAL: could not read config: %v\n", err)
-		os.Exit(1)
-	}
-	cfg = configFile
-
 	availableCommands = cmds
 }

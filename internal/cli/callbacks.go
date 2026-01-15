@@ -1,8 +1,13 @@
 package cli
 
 import (
+	"context"
 	"fmt"
+	"slices"
+	"time"
 
+	"github.com/google/uuid"
+	"github.com/marco-04/gator-aggregator/internal/database"
 	"github.com/marco-04/gator-aggregator/internal/state"
 )
 
@@ -42,7 +47,16 @@ var cmds = map[string]cmd {
 func login(s *state.State, args []string) error {
 	currentUser := args[0]
 
-	if err := cfg.SetUser(currentUser); err != nil {
+	names, err := s.DB.GetUserNames(context.Background())
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	if !slices.Contains(names, currentUser) {
+		return fmt.Errorf("User \"%s\" does not exist", currentUser)
+	}
+
+	if err := s.Config.SetUser(currentUser); err != nil {
 		return err
 	}
 
@@ -51,6 +65,25 @@ func login(s *state.State, args []string) error {
 }
 
 func register(s *state.State, args []string) error {
+	name := args[0]
+	id := uuid.New()
+
+	user, err := s.DB.CreateUser(context.Background(), database.CreateUserParams{
+		ID: id,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name: name,
+	})
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	if err := s.Config.SetUser(name); err != nil {
+		return err
+	}
+
+	fmt.Printf("\"%s\" successfully created!\n", name)
+	fmt.Printf("User data: %v\n", user)
 	return nil
 }
 
@@ -61,7 +94,7 @@ func listUsers(s *state.State, args[]string) error {
 func setDBURL(s *state.State, args []string) error {
 	dbURL := args[0]
 
-	if err := cfg.SetDBURL(dbURL); err != nil {
+	if err := s.Config.SetDBURL(dbURL); err != nil {
 		return err
 	}
 

@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/marco-04/gator-aggregator/internal/database"
 	"github.com/marco-04/gator-aggregator/internal/state"
+	"github.com/marco-04/gator-aggregator/internal/rss"
 )
 
 var cmds = map[string]cmd {
@@ -42,6 +43,12 @@ var cmds = map[string]cmd {
 		usageStr: "",
 		callback: listUsers,
 	},
+	"agg": {
+		description: "Fetch feeds",
+		argNum: 0,
+		usageStr: "",
+		callback: agg,
+	},
 	"help": {
 		description: "Print usage text",
 		argNum: 0,
@@ -67,6 +74,17 @@ func login(s *state.State, args []string) error {
 	}
 
 	fmt.Printf("\"%s\" set as current_user_name\n", currentUser)
+	return nil
+}
+
+func setDBURL(s *state.State, args []string) error {
+	dbURL := args[0]
+
+	if err := s.Config.SetDBURL(dbURL); err != nil {
+		return err
+	}
+
+	fmt.Printf("\"%s\" set as db_url\n", dbURL)
 	return nil
 }
 
@@ -121,14 +139,13 @@ func listUsers(s *state.State, args[]string) error {
 	return nil
 }
 
-func setDBURL(s *state.State, args []string) error {
-	dbURL := args[0]
-
-	if err := s.Config.SetDBURL(dbURL); err != nil {
+func agg(s *state.State, args[]string) error {
+	feed, err := rss.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
 		return err
 	}
 
-	fmt.Printf("\"%s\" set as db_url\n", dbURL)
+	fmt.Println(*feed)
 	return nil
 }
 

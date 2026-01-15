@@ -30,6 +30,12 @@ var cmds = map[string]cmd {
 		usageStr: "<user>",
 		callback: register,
 	},
+	"reset": {
+		description: "[DEBUG] Reset database to allow for easier testing",
+		argNum: 0,
+		usageStr: "",
+		callback: reset,
+	},
 	"users": {
 		description: "List users in the database",
 		argNum: 0,
@@ -87,7 +93,31 @@ func register(s *state.State, args []string) error {
 	return nil
 }
 
+func reset(s *state.State, args[]string) error {
+	err := s.DB.ResetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	fmt.Println("Successfully cleared users table")
+	return nil
+}
+
 func listUsers(s *state.State, args[]string) error {
+	users, err := s.DB.GetUserNames(context.Background())
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	fmt.Println("Users:")
+	for _, user := range users {
+		fmt.Printf("* %s", user)
+		if user == s.Config.CurrentUserName {
+			fmt.Print(" (current)")
+		}
+		fmt.Println()
+	}
+
 	return nil
 }
 

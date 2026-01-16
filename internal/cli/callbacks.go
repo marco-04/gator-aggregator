@@ -49,6 +49,12 @@ var cmds = map[string]cmd {
 		usageStr: "",
 		callback: agg,
 	},
+	"addfeed": {
+		description: "Add a feed",
+		argNum: 2,
+		usageStr: "<name> <url>",
+		callback: addFeed,
+	},
 	"help": {
 		description: "Print usage text",
 		argNum: 0,
@@ -146,6 +152,46 @@ func agg(s *state.State, args[]string) error {
 	}
 
 	fmt.Println(*feed)
+	return nil
+}
+
+func addFeed(s *state.State, args[]string) error {
+	feedName    := args[0]
+	feedURL     := args[1]
+	feedUUID    := uuid.New()
+	currentTime := time.Now()
+
+	users, err := s.DB.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	var userUUID uuid.UUID
+	for _, user := range users {
+		if s.Config.CurrentUserName == user.Name {
+			userUUID = user.ID
+			break
+		}
+	}
+	if userUUID == [16]byte{} {
+		return fmt.Errorf("user %s was not found", s.Config.CurrentUserName)
+	}
+
+	feed, err := s.DB.CreateFeed(context.Background(), database.CreateFeedParams{
+		ID: feedUUID,
+		CreatedAt: currentTime,
+		UpdatedAt: currentTime,
+		Name: feedName,
+		Url: feedURL,
+		UserID: userUUID,
+	})
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	fmt.Printf("Feed [%s](%s) correctly added!", feedName, feedURL)
+	fmt.Println(feed)
+
 	return nil
 }
 

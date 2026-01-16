@@ -55,6 +55,12 @@ var cmds = map[string]cmd {
 		usageStr: "<name> <url>",
 		callback: addFeed,
 	},
+	"feeds": {
+		description: "List all feeds for the current user",
+		argNum: 0,
+		usageStr: "",
+		callback: listFeeds,
+	},
 	"help": {
 		description: "Print usage text",
 		argNum: 0,
@@ -191,6 +197,19 @@ func addFeed(s *state.State, args[]string) error {
 
 	fmt.Printf("Feed [%s](%s) correctly added!", feedName, feedURL)
 	fmt.Println(feed)
+
+	return nil
+}
+
+func listFeeds(s *state.State, args[]string) error {
+	feeds, err := s.DB.AllFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	for _, feed := range feeds {
+		fmt.Printf("* [%s](%s) (added by %s)\n", feed.Name, feed.Url, feed.UserName)
+	}
 
 	return nil
 }

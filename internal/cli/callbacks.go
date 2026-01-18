@@ -61,6 +61,18 @@ var cmds = map[string]cmd {
 		usageStr: "",
 		callback: listFeeds,
 	},
+	"follow": {
+		description: "Follow a feed",
+		argNum: 1,
+		usageStr: "<url>",
+		callback: followFeed,
+	},
+	"following": {
+		description: "List all feeds the current user is following",
+		argNum: 0,
+		usageStr: "",
+		callback: listFollowFeeds,
+	},
 	"help": {
 		description: "Print usage text",
 		argNum: 0,
@@ -195,6 +207,11 @@ func addFeed(s *state.State, args[]string) error {
 		return fmt.Errorf("db error: %w", err)
 	}
 
+	err = followFeed(s, []string{ feedURL })
+	if err != nil {
+		return fmt.Errorf("follow feed error: %w", err)
+	}
+
 	fmt.Printf("Feed [%s](%s) correctly added!", feedName, feedURL)
 	fmt.Println(feed)
 
@@ -202,13 +219,82 @@ func addFeed(s *state.State, args[]string) error {
 }
 
 func listFeeds(s *state.State, args[]string) error {
-	feeds, err := s.DB.AllFeeds(context.Background())
+	feeds, err := s.DB.GetFeedsAndUser(context.Background())
 	if err != nil {
 		return fmt.Errorf("db error: %w", err)
 	}
 
 	for _, feed := range feeds {
 		fmt.Printf("* [%s](%s) (added by %s)\n", feed.Name, feed.Url, feed.UserName)
+	}
+
+	return nil
+}
+
+func followFeed(s *state.State, args[]string) error {
+	followUUID  := uuid.New()
+	currentTime := time.Now()
+	followURL   := args[0]
+
+	users, err := s.DB.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	var userUUID uuid.UUID
+	for _, user := range users {
+		if s.Config.CurrentUserName == user.Name {
+			userUUID = user.ID
+			break
+		}
+	}
+	if userUUID == [16]byte{} {
+		return fmt.Errorf("user %s was not found", s.Config.CurrentUserName)
+	}
+
+	feeds, err := s.DB.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	var feedUUID uuid.UUID
+	for _, feed := range feeds {
+		if followURL == feed.Url {
+			feedUUID = feed.ID
+			break
+		}
+	}
+	if userUUID == [16]byte{} {
+		return fmt.Errorf("user %s was not found", s.Config.CurrentUserName)
+	}
+
+	feedFollow, err := s.DB.CreateFeedFollows(context.Background(), database.CreateFeedFollowsParams{
+		ID: followUUID,
+		CreatedAt: currentTime,
+		UpdatedAt: currentTime,
+		UserID: userUUID,
+		FeedID: feedUUID,
+	})
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	fmt.Printf("New feed subscription \"%s\" was successfully created for %s", followURL, s.Config.CurrentUserName)
+	fmt.Println(feedFollow)
+
+	return nil
+}
+
+func listFollowFeeds(s *state.State, args[]string) error {
+	feeds, err := s.DB.GetFeedFollowsPerUser(context.Background(), s.Config.CurrentUserName)
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	fmt.Printf("Feeds followed by %s:\n", s.Config.CurrentUserName)
+
+	for _, feed := range feeds {
+		fmt.Println("* " + feed)
 	}
 
 	return nil

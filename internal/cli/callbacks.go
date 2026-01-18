@@ -55,6 +55,12 @@ var cmds = map[string]cmd {
 		usageStr: "<url>",
 		callback: doCallbackLoggedIn(followFeed),
 	},
+	"unfollow": {
+		description: "Unfollow a feed",
+		argNum: 1,
+		usageStr: "<url>",
+		callback: doCallbackLoggedIn(unfollowFeed),
+	},
 	"following": {
 		description: "List all feeds the current user is following",
 		argNum: 0,

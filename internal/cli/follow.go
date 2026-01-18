@@ -37,6 +37,27 @@ func followFeed(s *state.State, args[]string, user database.User) error {
 	return nil
 }
 
+func unfollowFeed(s *state.State, args[]string, user database.User) error {
+	followURL   := args[0]
+
+	feed, err := s.DB.GetFeedFromURL(context.Background(), followURL)
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	err = s.DB.DeleteFollowFromUserAndFeed(context.Background(), database.DeleteFollowFromUserAndFeedParams{
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("db error: %w", err)
+	}
+
+	fmt.Printf("Feed subscription for \"%s\" was successfully deleted for %s\n", followURL, s.Config.CurrentUserName)
+
+	return nil
+}
+
 func listFollowFeeds(s *state.State, args[]string) error {
 	feeds, err := s.DB.GetFeedFollowsPerUser(context.Background(), s.Config.CurrentUserName)
 	if err != nil {

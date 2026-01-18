@@ -11,6 +11,9 @@ RETURNING *;
 -- name: GetUsers :many
 SELECT * FROM users;
 
+-- name: GetCurrentUser :one
+SELECT * FROM users WHERE name = $1;
+
 -- name: GetUserNames :many
 SELECT name FROM users;
 

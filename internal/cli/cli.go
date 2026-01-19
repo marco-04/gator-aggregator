@@ -25,11 +25,10 @@ func validateArgs(args []string, argNum int) error {
 
 func Dispatch() {
 	args := os.Args
-	progName := args[0]
 
 	if len(args) == 1 {
 		fmt.Println("error: no command specified")
-		printHelp(nil, []string{progName})
+		printHelp(nil, nil)
 		os.Exit(1)
 	}
 	
@@ -46,14 +45,14 @@ func Dispatch() {
 	cmd, ok := availableCommands[cmdName]
 	if !ok {
 		fmt.Printf("error: command %s does not exist\n", cmdName)
-		printHelp(nil, []string{progName})
+		printHelp(nil, nil)
 		os.Exit(1)
 	}
 
 	// Validate number of arguments before passing them to callbacks
 	if err := validateArgs(subArgs, cmd.argNum); err != nil {
 		fmt.Printf("error: %v\n", err)
-		printHelp(nil, []string{progName})
+		printHelp(nil, nil)
 		os.Exit(1)
 	}
 
@@ -61,7 +60,7 @@ func Dispatch() {
 	s, err := state.Init()
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
-		printHelp(nil, []string{progName})
+		printHelp(nil, nil)
 	}
 
 	if err := availableCommands[cmdName].callback(&s, subArgs); err != nil {
@@ -71,7 +70,7 @@ func Dispatch() {
 }
 
 func printHelp(s *state.State, args []string) error {
-	progName := args[0]
+	progName := os.Args[0]
 	fmt.Printf("Usage: %s <cmd> [args]\nCommands:\n", progName)
 
 	for k, v := range availableCommands {

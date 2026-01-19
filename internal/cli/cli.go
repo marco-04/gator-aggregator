@@ -43,8 +43,15 @@ func Dispatch() {
 		subArgs = args[2:]
 	}
 
+	cmd, ok := availableCommands[cmdName]
+	if !ok {
+		fmt.Printf("error: command %s does not exist\n", cmdName)
+		printHelp(nil, []string{progName})
+		os.Exit(1)
+	}
+
 	// Validate number of arguments before passing them to callbacks
-	if err := validateArgs(subArgs, availableCommands[cmdName].argNum); err != nil {
+	if err := validateArgs(subArgs, cmd.argNum); err != nil {
 		fmt.Printf("error: %v\n", err)
 		printHelp(nil, []string{progName})
 		os.Exit(1)

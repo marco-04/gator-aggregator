@@ -67,6 +67,12 @@ var cmds = map[string]cmd {
 		usageStr: "",
 		callback: listFollowFeeds,
 	},
+	"browse": {
+		description: "Browse posts from your followed feeds (defaults to 2 posts)",
+		argNum: 0,
+		usageStr: "[limit]",
+		callback: doCallbackLoggedIn(browse),
+	},
 	"help": {
 		description: "Print usage text",
 		argNum: 0,

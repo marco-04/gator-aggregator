@@ -33,8 +33,8 @@ var cmds = map[string]cmd {
 	},
 	"agg": {
 		description: "Fetch feeds",
-		argNum: 0,
-		usageStr: "",
+		argNum: 1,
+		usageStr: "<time_between_reqs>",
 		callback: agg,
 	},
 	"addfeed": {

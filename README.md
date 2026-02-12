@@ -65,4 +65,4 @@ goose postgres <dburl> up -dir sql/schema
 I have changed my mind lol, I won't touch this ever again
 
 ---
-Typescript version on the [`typescript`](https://marco-04/gator-aggregator/tree/typescript) branch
+Typescript version on the [`typescript`](https://github.com/marco-04/gator-aggregator/tree/typescript) branch

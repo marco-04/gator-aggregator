@@ -1,0 +1,22 @@
+{
+  "name": "gator-aggregator",
+  "version": "1.0.0",
+  "description": "(no, I am not responsible for this pun)",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx ./src/main.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com:marco-04/gator-aggregator"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -63,3 +63,6 @@ goose postgres <dburl> up -dir sql/schema
 ## Future updates?
 ~~*Maybe*. Probably to un-overcomplicate the user system and use sqlite instead of deploying *fine* postgres for an RSS feed aggregator lol~~
 I have changed my mind lol, I won't touch this ever again
+
+---
+Typescript version on the [`typescript`](https://marco-04/gator-aggregator/tree/typescript) branch

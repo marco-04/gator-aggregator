@@ -1,7 +1,7 @@
 import { newState, State } from "../state.js";
 import { Config } from "../config.js";
 import { commandLogin, commandRegister, commandReset, commandUsers } from "./user.js";
-import { commandAgg } from "./agg.js";
+import { commandAddfeed, commandAgg } from "./agg.js";
 
 export async function initCLI(cfg: Config, ...args: string[]) {
   const cmd = args[0];
@@ -59,6 +59,11 @@ const availableCommands: Record<string, CLICommand> = {
     description: "Aggregate feeds",
     argNum: 0,
     callback: commandAgg
+  },
+  addfeed: {
+    description: "Add a feed",
+    argNum: 2,
+    callback: commandAddfeed
   },
   reset: {
     description: "Delete all user records",

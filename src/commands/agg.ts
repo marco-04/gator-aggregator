@@ -1,6 +1,28 @@
 import { fetchFeed } from "src/rss";
 import { State } from "../state.js";
+import { feeds, users } from "../db/schema.js";
+import { createFeed } from "../db/queries/feeds.js";
+import { getUser, getUserFromID } from "../db/queries/users.js";
+
+export type Feed = typeof feeds.$inferSelect;
+export type User = typeof users.$inferSelect;
+
+function printFeed(feed: Feed, user: User) {
+  console.log(JSON.stringify(feed));
+  console.log(JSON.stringify(user));
+}
 
 export async function commandAgg(_: State) {
   console.log(JSON.stringify(await fetchFeed("https://www.wagslane.dev/index.xml")));
 }
+
+export async function commandAddfeed(state: State, ...args: string[]) {
+  const name = args[0];
+  const feedURL = args[1];
+
+  const feed = await createFeed(state, name, feedURL);
+  const user = await getUserFromID(state, feed.userId);
+
+  printFeed(feed, user);
+}
+

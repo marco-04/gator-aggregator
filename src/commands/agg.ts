@@ -1,7 +1,7 @@
 import { fetchFeed } from "src/rss";
 import { State } from "../state.js";
 import { feeds, users } from "../db/schema.js";
-import { createFeed } from "../db/queries/feeds.js";
+import { createFeed, listFeeds } from "../db/queries/feeds.js";
 import { getUser, getUserFromID } from "../db/queries/users.js";
 
 export type Feed = typeof feeds.$inferSelect;
@@ -24,5 +24,12 @@ export async function commandAddfeed(state: State, ...args: string[]) {
   const user = await getUserFromID(state, feed.userId);
 
   printFeed(feed, user);
+}
+
+export async function commandListfeed(state: State) {
+  const feeds = await listFeeds(state);
+  for (const feed of feeds) {
+    console.log(`* "${feed.feeds.name}": ${feed.feeds.url} (${feed.users?.name})`);
+  }
 }
 

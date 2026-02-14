@@ -1,5 +1,6 @@
+import { eq } from "drizzle-orm";
 import { State } from "../../state.js";
-import { feeds } from "../schema.js";
+import { feeds, users } from "../schema.js";
 import { getUserID } from "./users.js";
 
 export async function createFeed(state: State, name: string, feedURL: string) {
@@ -9,6 +10,11 @@ export async function createFeed(state: State, name: string, feedURL: string) {
     url: feedURL,
     userId: userID,
   }).returning();
+  return result;
+}
+
+export async function listFeeds(state: State) {
+  const result = await state.db.select().from(feeds).leftJoin(users, eq(users.id, feeds.userId));
   return result;
 }
 

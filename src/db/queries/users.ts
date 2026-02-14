@@ -12,6 +12,16 @@ export async function getUser(state: State, name: string) {
   return result;
 }
 
+export async function getUserID(state: State, name: string) {
+  const [result] = await state.db.select({ id: users.id }).from(users).where(eq(users.name, name));
+  return result?.id;
+}
+
+export async function getUserFromID(state: State, id: string) {
+  const [result] = await state.db.select().from(users).where(eq(users.id, id));
+  return result;
+}
+
 export async function getUsers(state: State) {
   const result = await state.db.select().from(users);
   return result;

@@ -1,8 +1,8 @@
-import { State } from "../state.js";
+import { newState, State } from "../state.js";
 import { Config } from "../config.js";
-import { commandLogin } from "./user.js";
+import { commandLogin, commandRegister, commandReset, commandUsers } from "./user.js";
 
-export function initCLI(config: Config, ...args: string[]) {
+export async function initCLI(cfg: Config, ...args: string[]) {
   const cmd = args[0];
   if (cmd === undefined) {
     console.log("No command was provided");
@@ -14,14 +14,12 @@ export function initCLI(config: Config, ...args: string[]) {
     process.exit(1);
   }
 
-  const state = {
-    cfg: config
-  };
+  const state = newState(cfg);
 
   const subArgs = args.slice(1);
   try {
     validateArgs(cmd, ...subArgs);
-    availableCommands[cmd].callback(state, ...subArgs);
+    await availableCommands[cmd].callback(state, ...subArgs);
   } catch (err) {
     console.log(`Error: ${(err as Error).message}`);
 
@@ -32,7 +30,7 @@ export function initCLI(config: Config, ...args: string[]) {
 export type CLICommand = {
   description: string,
   argNum: number,
-  callback: (state: State, ...args: string[]) => void;
+  callback: (state: State, ...args: string[]) => Promise<void>
 }
 
 const availableCommands: Record<string, CLICommand> = {
@@ -46,9 +44,24 @@ const availableCommands: Record<string, CLICommand> = {
     argNum: 1,
     callback: commandLogin
   },
+  register: {
+    description: "Register an user",
+    argNum: 1,
+    callback: commandRegister
+  },
+  users: {
+    description: "Get all registered users",
+    argNum: 0,
+    callback: commandUsers
+  },
+  reset: {
+    description: "Delete all user records",
+    argNum: 0,
+    callback: commandReset
+  },
 }
 
-function commandHelp(_: State) {
+async function commandHelp(_: State) {
   console.log("Usage:");
   for (const key of Object.keys(availableCommands)) {
     console.log(`${key}: ${availableCommands[key]}`);

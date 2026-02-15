@@ -1,7 +1,7 @@
 import { newState, State } from "../state.js";
 import { Config } from "../config.js";
 import { commandLogin, commandRegister, commandReset, commandUsers } from "./user.js";
-import { commandAddfeed, commandAgg, commandFeedFollow, commandFeedUnfollow, commandFollowing, commandListfeed } from "./agg.js";
+import { commandAddfeed, commandAgg, commandBrowse, commandFeedFollow, commandFeedUnfollow, commandFollowing, commandListfeed } from "./agg.js";
 import { User } from "../db/schema.js";
 import { getUser } from "src/db/queries/users.js";
 
@@ -90,6 +90,11 @@ const availableCommands: Record<string, CLICommand> = {
     argNum: 1,
     callback: loggedIn(commandFeedUnfollow)
   },
+  browse: {
+    description: "Browse posts",
+    argNum: 0,
+    callback: loggedIn(commandBrowse)
+  },
   reset: {
     description: "Delete all user records",
     argNum: 0,
@@ -107,7 +112,7 @@ async function commandHelp(_: State) {
 function validateArgs(cmd: string, ...args: string[]) {
   const expected = availableCommands[cmd]!.argNum;
   const got = args.length;
-  if (got !== expected) {
+  if (got < expected) {
     throw new Error(`Wrong number of arguments: expected ${expected}, got ${got}`);
   }
 }

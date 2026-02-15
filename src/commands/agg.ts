@@ -1,8 +1,10 @@
-import { fetchFeed } from "src/rss";
+import { fetchFeed } from "../rss.js";
 import { State } from "../state.js";
-import { Feed, User } from "../db/schema.js";
+import { Feed, Post, User } from "../db/schema.js";
 import { createFeed, getNextToFetch, listFeeds, markFeedFetched } from "../db/queries/feeds.js";
 import { createFeedFollow, deleteFeedFollow, getFollowsForUser } from "../db/queries/feedfollows.js";
+import { createPost, getPostsForUser } from "../db/queries/posts.js";
+import { DrizzleQueryError } from "drizzle-orm";
 
 function printFeed(feed: Feed, user: User) {
   console.log(JSON.stringify(feed));
@@ -16,6 +18,17 @@ async function scrapeFeed(state: State) {
   console.log(`>> Fetched ${nextFeed.url}`);
   for (const item of feed.channel.item) {
     console.log(`* ${item.title}`);
+
+    // Try to save post to DB
+    // If the error is not a query error (which is likely to be duplicate)
+    // rethrow the error and let the handler display it
+    try {
+      await createPost(state, nextFeed.id, item)
+    } catch(err) {
+      if (!(err instanceof DrizzleQueryError)) {
+        throw err
+      }
+    }
   }
 }
 
@@ -110,6 +123,16 @@ export async function commandFollowing(user: User, state: State) {
   const feedFollows = await getFollowsForUser(state, user.id);
   for (const feed of feedFollows) {
     console.log(`* "${feed.feeds?.name}": ${feed.feeds?.url}`);
+  }
+}
+
+export async function commandBrowse(user: User, state: State, ...args: string[]) {
+  const limit = Number(args[0]);
+
+  const posts = await getPostsForUser(state, user.id, limit);
+  for (const post of posts) {
+    // had to use `published_at` instead of `pubDate` because `pubDate` apparently only returns `undefined` :|
+    console.log(`* "${post.title}": ${post.url}${post.published_at ? ` [date: ${post.published_at}]` : ""}`);
   }
 }
 

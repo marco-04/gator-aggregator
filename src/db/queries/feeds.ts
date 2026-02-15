@@ -13,6 +13,11 @@ export async function createFeed(state: State, name: string, feedURL: string) {
   return result;
 }
 
+export async function getFeed(state: State, feedURL: string) {
+  const [result] = await state.db.select().from(feeds).where(eq(feeds.url, feedURL));
+  return result;
+}
+
 export async function listFeeds(state: State) {
   const result = await state.db.select().from(feeds).leftJoin(users, eq(users.id, feeds.userId));
   return result;

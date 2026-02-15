@@ -37,6 +37,8 @@ export const feed_follows = pgTable("feed_follows", {
   userId: uuid("user_id").references(() => users.id, {onDelete: "cascade"}).notNull(),
   feedId: uuid("feed_id").references(() => feeds.id, {onDelete: "cascade"}).notNull(),
 }, (t) => [
+  // @ts-ignore
+  // This is the right syntax: https://orm.drizzle.team/docs/indexes-constraints
   unique().on(t.userId, t.feedId),
 ]);
 

@@ -1,6 +1,6 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { State } from "../../state.js";
-import { feed_follows, feeds, Post, posts } from "../schema.js";
+import { feed_follows, posts } from "../schema.js";
 import { RSSItem } from "../../rss.js";
 
 export async function createPost(state: State, feedID: string, post: RSSItem) {

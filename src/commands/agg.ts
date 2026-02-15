@@ -1,6 +1,6 @@
 import { fetchFeed } from "../rss.js";
 import { State } from "../state.js";
-import { Feed, Post, User } from "../db/schema.js";
+import { Feed, User } from "../db/schema.js";
 import { createFeed, getNextToFetch, listFeeds, markFeedFetched } from "../db/queries/feeds.js";
 import { createFeedFollow, deleteFeedFollow, getFollowsForUser } from "../db/queries/feedfollows.js";
 import { createPost, getPostsForUser } from "../db/queries/posts.js";

@@ -1,4 +1,4 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { State } from "../../state.js";
 import { Feed, feeds, users } from "../schema.js";
 

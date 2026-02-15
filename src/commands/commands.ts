@@ -2,6 +2,8 @@ import { newState, State } from "../state.js";
 import { Config } from "../config.js";
 import { commandLogin, commandRegister, commandReset, commandUsers } from "./user.js";
 import { commandAddfeed, commandAgg, commandFeedFollow, commandFollowing, commandListfeed } from "./agg.js";
+import { User } from "../db/schema.js";
+import { getUser } from "src/db/queries/users.js";
 
 export async function initCLI(cfg: Config, ...args: string[]) {
   const cmd = args[0];
@@ -28,10 +30,13 @@ export async function initCLI(cfg: Config, ...args: string[]) {
   }
 }
 
+export type Callback = (state: State, ...args: string[]) => Promise<void>;
+export type UserCallback = (user: User, state: State, ...args: string[]) => Promise<void>;
+
 export type CLICommand = {
   description: string,
   argNum: number,
-  callback: (state: State, ...args: string[]) => Promise<void>
+  callback: Callback
 }
 
 const availableCommands: Record<string, CLICommand> = {
@@ -63,7 +68,7 @@ const availableCommands: Record<string, CLICommand> = {
   addfeed: {
     description: "Add a feed",
     argNum: 2,
-    callback: commandAddfeed
+    callback: loggedIn(commandAddfeed)
   },
   feeds: {
     description: "List feeds",
@@ -73,12 +78,12 @@ const availableCommands: Record<string, CLICommand> = {
   follow: {
     description: "Follow feed",
     argNum: 1,
-    callback: commandFeedFollow
+    callback: loggedIn(commandFeedFollow)
   },
   following: {
     description: "Follow feed",
     argNum: 0,
-    callback: commandFollowing
+    callback: loggedIn(commandFollowing)
   },
   reset: {
     description: "Delete all user records",
@@ -99,6 +104,17 @@ function validateArgs(cmd: string, ...args: string[]) {
   const got = args.length;
   if (got !== expected) {
     throw new Error(`Wrong number of arguments: expected ${expected}, got ${got}`);
+  }
+}
+
+export function loggedIn(handler: UserCallback): Callback {
+  return async (state: State, ...args: string[]) => {
+    const user = await getUser(state, state.cfg.currentUserName);
+    if (!user) {
+      throw new Error(`User ${state.cfg.currentUserName} not found`);
+    }
+
+    await handler(user, state, ...args);
   }
 }
 

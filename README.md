@@ -49,5 +49,11 @@ Commands:
 
 You'll need to spawn a Postgres instance, then register a user, add some feeds or follow feeds from other users, then run the `agg` command in the background to continuously fetch posts, that you can then "see" (very much _not prettified_) with the `browse` command (_che al mercato mio padre comprò_)
 
+## Init Database
+To init the database you will need to run
+```
+npx drizzle-kit generate && npx drizzle-kit migrate
+```
+
 ---
 go version on the [`master`](https://marco-04/gator-aggregator) branch

@@ -62,7 +62,7 @@ const availableCommands: Record<string, CLICommand> = {
   },
   agg: {
     description: "Aggregate feeds",
-    argNum: 0,
+    argNum: 1,
     callback: commandAgg
   },
   addfeed: {

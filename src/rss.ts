@@ -71,6 +71,6 @@ export async function fetchFeed(feedURL: string) {
   }
   feedObj.channel.item = items;
 
-  return feedObj;
+  return feedObj as RSSFeed;
 }
 

@@ -1,7 +1,7 @@
 import { State } from "../../state.js";
 import { feed_follows, feeds, users } from "../schema.js";
 import { getFeed } from "./feeds.js";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export async function createFeedFollow(state: State, userID: string, feedURL: string) {
   const feed = await getFeed(state, feedURL);
@@ -10,6 +10,11 @@ export async function createFeedFollow(state: State, userID: string, feedURL: st
     feedId: feed.id
   }).returning();
   return result;
+}
+
+export async function deleteFeedFollow(state: State, userID: string, feedURL: string) {
+  const feed = await getFeed(state, feedURL);
+  await state.db.delete(feed_follows).where(and(eq(feed_follows.userId, userID), eq(feed_follows.feedId, feed.id)));
 }
 
 export async function getFollowsForUser(state: State, userID: string) {

@@ -2,7 +2,7 @@ import { fetchFeed } from "src/rss";
 import { State } from "../state.js";
 import { Feed, User } from "../db/schema.js";
 import { createFeed, listFeeds } from "../db/queries/feeds.js";
-import { createFeedFollow, getFollowsForUser } from "../db/queries/feedfollows.js";
+import { createFeedFollow, deleteFeedFollow, getFollowsForUser } from "../db/queries/feedfollows.js";
 
 function printFeed(feed: Feed, user: User) {
   console.log(JSON.stringify(feed));
@@ -35,6 +35,13 @@ export async function commandFeedFollow(user: User, state: State, ...args: strin
 
   const feedFollow = await createFeedFollow(state, user.id, feedURL);
   console.log(JSON.stringify(feedFollow));
+}
+
+export async function commandFeedUnfollow(user: User, state: State, ...args: string[]) {
+  const feedURL = args[0];
+
+  await deleteFeedFollow(state, user.id, feedURL);
+  console.log(`${feedURL} unfollowed!`);
 }
 
 export async function commandFollowing(user: User, state: State) {

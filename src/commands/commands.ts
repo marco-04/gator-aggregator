@@ -1,7 +1,7 @@
 import { newState, State } from "../state.js";
 import { Config } from "../config.js";
 import { commandLogin, commandRegister, commandReset, commandUsers } from "./user.js";
-import { commandAddfeed, commandAgg, commandFeedFollow, commandFollowing, commandListfeed } from "./agg.js";
+import { commandAddfeed, commandAgg, commandFeedFollow, commandFeedUnfollow, commandFollowing, commandListfeed } from "./agg.js";
 import { User } from "../db/schema.js";
 import { getUser } from "src/db/queries/users.js";
 
@@ -84,6 +84,11 @@ const availableCommands: Record<string, CLICommand> = {
     description: "Follow feed",
     argNum: 0,
     callback: loggedIn(commandFollowing)
+  },
+  unfollow: {
+    description: "Unfollow feed",
+    argNum: 1,
+    callback: loggedIn(commandFeedUnfollow)
   },
   reset: {
     description: "Delete all user records",
